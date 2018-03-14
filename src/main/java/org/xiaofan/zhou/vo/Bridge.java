@@ -18,4 +18,10 @@ public class Bridge {
 
     /**到充电站的距离**/
     private int distanceOfStation;
+
+    private Bridge(){}
+
+    public Bridge(int id){
+        this.id = id;
+    }
 }

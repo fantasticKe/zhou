@@ -23,4 +23,11 @@ public class Shore {
 
     /**到充电站的距离**/
     private int distanceOfStation;
+
+    private Shore(){}
+
+    public Shore(int id){
+        this.id = id;
+    }
+
 }

@@ -14,34 +14,34 @@ public class AVG {
     private int id;
 
     /**满电空载行程**/
-    private int lightTravel = 200;
+    private int lightTravel;
 
     /**满电负载行程**/
-    private int loadStroke = 150;
+    private int loadStroke;
 
     /**当前电量**/
     private double currentPower;
 
     /**空载速度**/
-    private int noLoadSpeed = 25;
+    private int noLoadSpeed;
 
     /**负载速度**/
-    private int loadSpeed = 20;
+    private int loadSpeed;
 
     /**空载耗电速度**/
-    private double noLoadConsumptionSpeed = 12.5;
+    private double noLoadConsumptionSpeed;
 
     /**负载耗电速度**/
-    private double loadConsumptionSpeed = 13.3;
+    private double loadConsumptionSpeed;
 
     /**充电速度**/
-    private double chargingSpeed = 0.67;
+    private double chargingSpeed;
 
     /**允许工作的最低电量**/
-    private double workPower = 0.1;
+    private double workPower;
 
     /**允许充电断开的最低电量**/
-    private double disconnectPower = 0.6;
+    private double disconnectPower;
 
     /**完成任务数**/
     private int completedTask;
@@ -58,4 +58,11 @@ public class AVG {
     /**行驶距离**/
     private double distance;
 
+    /**当前任务**/
+    private Task nowTask;
+
+    /**下一个任务**/
+    private Task nextTask;
+
+    private AVG(){}
 }

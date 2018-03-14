@@ -21,6 +21,8 @@ public class Task {
     /** 已完成任务数 **/
     private int completedCounts;
 
+    private Task(){}
+
 }
 enum degree{
     FRIST("最紧急",1), SECOND("较为紧急",2),THRID("一般",3);

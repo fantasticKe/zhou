@@ -4,11 +4,11 @@ import lombok.Data;
 
 /**
  * @author maokeluo
- * @desc AVG
+ * @desc AGV
  * @create 18-3-13
  */
 @Data
-public class AVG {
+public class AGV {
 
     /**id**/
     private int id;
@@ -64,5 +64,5 @@ public class AVG {
     /**下一个任务**/
     private Task nextTask;
 
-    private AVG(){}
+    private AGV(){}
 }

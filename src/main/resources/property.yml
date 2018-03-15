@@ -7,8 +7,8 @@ agv:
   noLoadConsumptionSpeed: 12.5
   loadConsumptionSpeed: 13.3
   chargingSpeed: 0.67
-  workPower: 0.1
-  disconnectPower: 0.6
+  workPower: 10
+  disconnectPower: 60
   power:
     - 68
     - 71

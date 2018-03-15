@@ -2,6 +2,8 @@ package org.xiaofan.zhou.vo;
 
 import lombok.Data;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * @author maokeluo
  * @desc 任务类
@@ -10,8 +12,11 @@ import lombok.Data;
 @Data
 public class Task {
 
-    public static final int NOT_COMPLETE = 0;
-    public static final int COMPLETED = 1;
+    /**未完成**/
+    public static final AtomicInteger NOT_COMPLETE = new AtomicInteger(0);
+    /**完成**/
+    public static final AtomicInteger COMPLETED = new AtomicInteger(1);
+
     /** id **/
     private int id;
 
@@ -22,7 +27,7 @@ public class Task {
     private int degree;
 
     /**任务状态 **/
-    private int state;
+    private AtomicInteger state;
 
     private Task(){}
 
@@ -31,15 +36,4 @@ public class Task {
     }
 
 }
-enum degree{
-    FRIST("最紧急",1), SECOND("较为紧急",2),THRID("一般",3);
 
-    private String level;
-
-    private int value;
-
-    degree(String degreeLevel, int i) {
-        this.level = degreeLevel;
-        this.value = i;
-    }
-}

@@ -1,11 +1,12 @@
 package org.xiaofan.zhou.vo.factory;
 
-import jdk.internal.dynalink.linker.LinkerServices;
 import org.xiaofan.zhou.util.RandomUtil;
 import org.xiaofan.zhou.vo.Task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -25,7 +26,11 @@ public class TaskFactory {
         return new Task(id);
     }
 
+    /**所有任务**/
     public static List<Task> tasks = new ArrayList<>();
+    /**未完成任务**/
+    public static List<Task> notCompleteTask = new ArrayList<>();
+
     public static List<Integer> randoms = new ArrayList<>();
     /**
      * 获取一组1-3之间的随机数
@@ -52,4 +57,18 @@ public class TaskFactory {
         });
         return tasks;
     }
+
+    /** 
+     * @desc 获取未完成renw
+     * @author maokeluo
+     * @methodName getNotCompleteTask       
+     * @create 18-3-15
+     * @return java.util.List<org.xiaofan.zhou.vo.Task>
+     */
+    public List<Task> getNotCompleteTask(){
+        return tasks.stream()
+                .filter(p->Task.NOT_COMPLETE.equals(p.getDegree()))
+                .collect(Collectors.toList());
+    }
+
 }

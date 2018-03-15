@@ -24,7 +24,7 @@ public class AShoreFactory {
     private AShoreFactory(){}
 
     //定义一个对外开放的方法，以获取该工厂实例
-    public static AShoreFactory createShoreFactory(){
+    public static AShoreFactory getShoreFactory(){
         return AShoreFactory;
     }
 
@@ -69,5 +69,16 @@ public class AShoreFactory {
             shores.add(shore);
         });
         return shores;
+    }
+
+    /**
+     * @desc 为每个岸桥分配任务
+     * @author maokeluo
+     * @methodName assignedTasks
+     * @create 18-3-15
+     * @return void
+     */
+    public void assignedTasks(){
+        //TODO
     }
 }

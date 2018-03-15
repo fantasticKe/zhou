@@ -64,5 +64,8 @@ public class AGV {
     /**下一个任务**/
     private Task nextTask;
 
+    /**当前位置**/
+    private Bridge location;
+
     private AGV(){}
 }

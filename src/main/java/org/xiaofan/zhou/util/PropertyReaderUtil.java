@@ -1,7 +1,9 @@
 package org.xiaofan.zhou.util;
 
-import java.io.IOException;
-import java.io.InputStream;
+import com.alibaba.fastjson.JSONObject;
+import org.ho.yaml.Yaml;
+
+import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,6 +17,7 @@ import java.util.Properties;
 public class PropertyReaderUtil {
 
     public static Map<String,String> map = new HashMap<>();
+    private static JSONObject jsonObject = new JSONObject();
 
    /**
     * @desc 加载指定配置文件
@@ -41,4 +44,26 @@ public class PropertyReaderUtil {
         }
         return map;
     }
+
+    /**
+     * 读取yml配置文件
+     * @return
+     */
+    public static JSONObject readYml(){
+        try {
+            File path = new File(System.getProperty("user.dir")+"/src/main/resources");
+            File file = new File(path,"property.yml");
+            InputStream inputStream = new FileInputStream(file);
+            jsonObject = Yaml.loadType(inputStream,JSONObject.class);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+    public static void main(String[] args) {
+        JSONObject jsonObject = PropertyReaderUtil.readYml();
+        System.out.println(jsonObject.getJSONObject("distanceOfBridge").get("11"));
+    }
+
 }

@@ -1,0 +1,69 @@
+#AGV属性
+agv:
+  lightTravel: 200
+  loadStroke: 150
+  noLoadSpeed: 25
+  loadSpeed: 20
+  noLoadConsumptionSpeed: 12.5
+  loadConsumptionSpeed: 13.3
+  chargingSpeed: 0.67
+  workPower: 0.1
+  disconnectPower: 0.6
+  power:
+    - 68
+    - 71
+    - 66
+    - 83
+    - 62
+    - 78
+    - 88
+    - 91
+
+#岸桥和厂桥的距离
+distanceOfBridge:
+  11: 700
+  12: 630
+  13: 630
+  14: 910
+  15: 1120
+  16: 1330
+  21: 840
+  22: 630
+  23: 630
+  24: 840
+  25: 980
+  26: 1190
+
+#岸桥到场桥的任务
+task:
+  11: 88
+  12: 70
+  13: 150
+  14: 90
+  15: 50
+  16: 52
+  21: 105
+  22: 96
+  23: 80
+  24: 100
+  25: 74
+  26: 45
+
+#场桥到充电站的距离
+distanceOfCBridge2Station:
+  - 100
+  - 300
+  - 450
+  - 680
+  - 850
+  - 980
+
+#岸桥到充电站的距离
+distanceOfAShore2Station:
+  - 800
+  - 950
+
+
+
+
+

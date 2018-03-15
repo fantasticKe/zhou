@@ -10,18 +10,25 @@ import lombok.Data;
 @Data
 public class Task {
 
+    public static final int NOT_COMPLETE = 0;
+    public static final int COMPLETED = 1;
     /** id **/
     private int id;
+
     /** 完成时间 **/
     private long completedTime;
+
     /** 紧急程度 **/
     private int degree;
-    /** 任务总数 **/
-    private int total;
-    /** 已完成任务数 **/
-    private int completedCounts;
+
+    /**任务状态 **/
+    private int state;
 
     private Task(){}
+
+    public Task(int id){
+        this.id = id;
+    }
 
 }
 enum degree{

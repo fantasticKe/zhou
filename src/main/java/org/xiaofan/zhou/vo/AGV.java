@@ -92,10 +92,20 @@ public class AGV {
         this.location = location;
     }
 
+    /**
+     * 获取当前任务
+     * @return
+     */
     public Task getCurrent(){
-        //TODO
         List<Task> notCompleteTask = TaskFactory.notCompleteTask;
         List<Task> tasks = new ArrayList<>();
         return tasks.get(0);
+    }
+
+    /**
+     * AGV开始运行
+     */
+    public void run(){
+
     }
 }

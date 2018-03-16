@@ -2,6 +2,7 @@ package org.xiaofan.zhou.vo;
 
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,8 +19,8 @@ public class AShore extends Bridge{
     /**到场桥的距离 以岸桥和厂桥的id组合为key**/
     private Map<String,Integer> distanceOfCBridge;
 
-    /**到厂桥的任务 以岸桥和厂桥的id组合为key,任务id为value**/
-    private Map<String, Integer> tasks;
+    /**到厂桥的任务 以岸桥和厂桥的id组合为key,任务集合为value**/
+    private Map<String, List<Task>> tasks;
 
     /**到充电站的距离**/
     private int distanceOfStation;

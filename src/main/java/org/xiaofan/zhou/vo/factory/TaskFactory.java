@@ -59,7 +59,7 @@ public class TaskFactory {
     }
 
     /** 
-     * @desc 获取未完成renw
+     * @desc 获取未完成任务
      * @author maokeluo
      * @methodName getNotCompleteTask       
      * @create 18-3-15
@@ -70,5 +70,4 @@ public class TaskFactory {
                 .filter(p->Task.NOT_COMPLETE.equals(p.getDegree()))
                 .collect(Collectors.toList());
     }
-
 }

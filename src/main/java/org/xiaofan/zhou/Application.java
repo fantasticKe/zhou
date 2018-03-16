@@ -21,6 +21,12 @@ public class Application {
 
     public static void main(String[] args) {
 
+        //利用工厂创建任务
+        TaskFactory taskFactory = TaskFactory.getTaskFactory();
+        List<Task> tasks = taskFactory.batchCreateTask(1000);
+        tasks.forEach(System.out::print);
+        System.out.println("");
+
         //利用工厂创建场桥
         CBridgeFactory cBridgeFactory = CBridgeFactory.getCBridgeFactory();
         List<CBridge> cBridges = cBridgeFactory.batchCreateBridge(6);
@@ -31,11 +37,8 @@ public class Application {
         List<AShore> aShores = aShoreFactory.batchCreateShore(2);
         aShores.forEach(System.out::println);
 
-        //利用工厂创建任务
-        TaskFactory taskFactory = TaskFactory.getTaskFactory();
-        List<Task> tasks = taskFactory.batchCreateTask(1000);
-        tasks.forEach(System.out::print);
-        System.out.println("");
+
+
 
         //利用工厂创建AGV
         AGVFactory agvFactory = AGVFactory.getAgvFactory();

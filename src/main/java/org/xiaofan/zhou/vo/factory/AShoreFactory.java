@@ -4,11 +4,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.xiaofan.zhou.util.PropertyReaderUtil;
 import org.xiaofan.zhou.vo.AShore;
+import org.xiaofan.zhou.vo.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.IntStream;
 
 /**
@@ -50,24 +48,31 @@ public class AShoreFactory {
         //岸桥到场桥的任务
         JSONObject task = PropertyReaderUtil.readYml().getJSONObject("task");
 
-        IntStream.range(1,count+1).forEach((int p) ->{
-            AShore shore = createShore(p);
-            shore.setDistanceOfStation(Integer.valueOf(distances2Station.get(p-1).toString()));
-            Map<String,Integer> tasks = new HashMap<>();
-            IntStream.range(1,6).forEach(q->{
-                String key = p+String.valueOf(q);
-                tasks.put(key, Integer.valueOf(task.get(key).toString()));
-            });
+        for (int i = 1; i < count + 1; i++) {
+            AShore shore = createShore(i);
+            int startIndex = 0;
+            shore.setDistanceOfStation(Integer.valueOf(distances2Station.get(i-1).toString()));
+            Map<String,List<Task>> tasks = new HashMap<>();
+
+            for (int j = 1; j < 7; j++) {
+                String key = i + String.valueOf(j);
+                Integer integer = Integer.valueOf(task.get(key).toString());
+                List<Task> taskList = new ArrayList<>();
+                for (int k = startIndex; k < integer.intValue(); k++) {
+                    taskList.add(TaskFactory.tasks.get(k));
+                }
+                tasks.put(key, taskList);
+                startIndex = integer;
+            }
             shore.setTasks(tasks);
             Map<String,Integer> distanceOfCBridge = new HashMap<>();
-            IntStream.range(1,7).forEach(k->{
-                String key = p+String.valueOf(k);
+            for (int j = 1; j < 7; j++) {
+                String key = i+String.valueOf(j);
                 distanceOfCBridge.put(key,Integer.valueOf(distance2CBridge.get(key).toString()));
-            });
+            }
             shore.setDistanceOfCBridge(distanceOfCBridge);
-
             shores.add(shore);
-        });
+        }
         return shores;
     }
 

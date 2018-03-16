@@ -1,10 +1,12 @@
 package org.xiaofan.zhou.vo;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
+import org.xiaofan.zhou.util.PropertyReaderUtil;
+import org.xiaofan.zhou.vo.factory.AShoreFactory;
 import org.xiaofan.zhou.vo.factory.TaskFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author maokeluo
@@ -69,7 +71,7 @@ public class AGV {
     private Task nextTask;
 
     /**当前位置**/
-    private Bridge location;
+    private CBridge location;
 
     private AGV(){}
 
@@ -78,7 +80,7 @@ public class AGV {
     }
 
     public AGV(int id, int lightTravel, int loadStroke, int noLoadSpeed, int loadSpeed, double noLoadConsumptionSpeed,
-               double loadConsumptionSpeed, double chargingSpeed, int workPower, int disconnectPower, Bridge location) {
+               double loadConsumptionSpeed, double chargingSpeed, int workPower, int disconnectPower, CBridge location) {
         this.id = id;
         this.lightTravel = lightTravel;
         this.loadStroke = loadStroke;
@@ -96,16 +98,45 @@ public class AGV {
      * 获取当前任务
      * @return
      */
-    public Task getCurrent(){
-        List<Task> notCompleteTask = TaskFactory.notCompleteTask;
-        List<Task> tasks = new ArrayList<>();
-        return tasks.get(0);
+    public void accessTask(){
+        List<Task> notCompleteTask = TaskFactory.getNotCompleteTask();
+        List<AShore> shores = AShoreFactory.shores;
+        JSONObject distanceOfBridge = PropertyReaderUtil.readYml().getJSONObject("distanceOfBridge");
+        //以任务的id为key，加权值为value
+        Map<Integer,Double> weightedMap = new HashMap<>();
+        List<Double> weighteds = new ArrayList<>();
+        shores.forEach(p->{
+            String distanceKey = p.getId()+String.valueOf(location.getId());
+            Integer distance = Integer.valueOf(distanceOfBridge.get(distanceKey).toString());
+            notCompleteTask.forEach(q->{
+                double weighted = 0.4 * distance + 0.6 * q.getDegree();
+                weightedMap.put(q.getId(),weighted);
+                weighteds.add(weighted);
+            });
+        });
+
+        Map.Entry<Integer, Double> entry = weightedMap.entrySet().stream()
+                .min(Comparator.comparing(Map.Entry::getValue))
+                .get();
+
+        System.out.printf("%d号AGV接取到任务：%d \n",id,entry.getKey());
+        Task task = TaskFactory.getTaskById(entry.getKey());
+        task.setState(Task.BE_ACCESS);
+        setCurrentTask(task);
     }
 
     /**
      * AGV开始运行
      */
     public void run(){
+        System.out.printf("%d号AGV开始执行任务：%d \n",id,currentTask.getId());
+        //空载行程
+        JSONObject distanceOfBridge = PropertyReaderUtil.readYml().getJSONObject("distanceOfBridge");
+        String noLoaddistanceKey = location.getId() + String.valueOf(currentTask.getId());
+        Integer distance = Integer.valueOf(distanceOfBridge.get(noLoaddistanceKey).toString());
+        String loaddistanceKey = currentTask.getId() + String.valueOf(location.getId());
+
+        //行程改变
 
     }
 }

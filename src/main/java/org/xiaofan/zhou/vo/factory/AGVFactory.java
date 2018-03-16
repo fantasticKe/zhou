@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.xiaofan.zhou.util.PropertyReaderUtil;
 import org.xiaofan.zhou.vo.AGV;
 import org.xiaofan.zhou.vo.Bridge;
+import org.xiaofan.zhou.vo.CBridge;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,7 @@ public class AGVFactory {
         double chargingSpeed = Double.valueOf(jsonObject.get("chargingSpeed").toString());
         int workPower = Integer.valueOf(jsonObject.get("workPower").toString());
         int disconnectPower = Integer.valueOf(jsonObject.get("disconnectPower").toString());
-        Bridge location = CBridgeFactory.list.get(0);
+        CBridge location = CBridgeFactory.list.get(0);
 
         return new AGV(id,lightTravel,loadStroke,noLoadSpeed,loadSpeed,noLoadConsumptionSpeed,loadConsumptionSpeed,
                 chargingSpeed,workPower,disconnectPower,location);

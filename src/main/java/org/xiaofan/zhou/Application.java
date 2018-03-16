@@ -24,26 +24,23 @@ public class Application {
         //利用工厂创建任务
         TaskFactory taskFactory = TaskFactory.getTaskFactory();
         List<Task> tasks = taskFactory.batchCreateTask(1000);
-        tasks.forEach(System.out::print);
-        System.out.println("");
+        //tasks.forEach(System.out::print);
 
         //利用工厂创建场桥
         CBridgeFactory cBridgeFactory = CBridgeFactory.getCBridgeFactory();
         List<CBridge> cBridges = cBridgeFactory.batchCreateBridge(6);
-        cBridges.forEach(System.out::println);
+        //cBridges.forEach(System.out::println);
 
         //利用工厂创建岸桥
         AShoreFactory aShoreFactory = AShoreFactory.getShoreFactory();
         List<AShore> aShores = aShoreFactory.batchCreateShore(2);
-        aShores.forEach(System.out::println);
-
-
-
+        //aShores.forEach(System.out::println);
 
         //利用工厂创建AGV
         AGVFactory agvFactory = AGVFactory.getAgvFactory();
         List<AGV> agvs = agvFactory.batchCreateAGV(8);
-        agvs.forEach(System.out::println);
-
+        //agvs.forEach(System.out::println);
+        agvs.forEach(p->p.accessTask());
+        //agvs.get(0).accessTask();
     }
 }

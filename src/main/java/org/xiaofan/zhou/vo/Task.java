@@ -16,6 +16,8 @@ public class Task {
     public static final AtomicInteger NOT_COMPLETE = new AtomicInteger(0);
     /**完成**/
     public static final AtomicInteger COMPLETED = new AtomicInteger(1);
+    /**被接取**/
+    public static final AtomicInteger BE_ACCESS = new AtomicInteger(2);
 
     /** id **/
     private int id;

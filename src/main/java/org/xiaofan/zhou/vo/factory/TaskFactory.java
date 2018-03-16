@@ -65,9 +65,18 @@ public class TaskFactory {
      * @create 18-3-15
      * @return java.util.List<org.xiaofan.zhou.vo.Task>
      */
-    public List<Task> getNotCompleteTask(){
+    public static List<Task> getNotCompleteTask(){
         return tasks.stream()
-                .filter(p->Task.NOT_COMPLETE.equals(p.getDegree()))
+                .filter(p -> Task.NOT_COMPLETE == p.getState())
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据id获取任务
+     * @param id
+     * @return
+     */
+    public static Task getTaskById(int id){
+        return tasks.get(id-1);
     }
 }

@@ -17,7 +17,7 @@ public class AShore extends Bridge{
     private int id;
 
     /**到场桥的距离 以岸桥和厂桥的id组合为key**/
-    private Map<String,Integer> distanceOfCBridge;
+    private Map<String,Double> distanceOfCBridge;
 
     /**到厂桥的任务 以岸桥和厂桥的id组合为key,任务集合为value**/
     private Map<String, List<Task>> tasks;

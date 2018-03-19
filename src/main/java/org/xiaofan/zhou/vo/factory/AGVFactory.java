@@ -7,8 +7,8 @@ import org.xiaofan.zhou.vo.AGV;
 import org.xiaofan.zhou.vo.Bridge;
 import org.xiaofan.zhou.vo.CBridge;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 
 /**
@@ -27,6 +27,11 @@ public class AGVFactory {
         return agvFactory;
     }
 
+    private static List<AGV> waitQueue = new LinkedList<>();
+    //入队时间
+    public static ConcurrentHashMap<Integer,Long> addQueueMap = new ConcurrentHashMap<>();
+    //出队时间
+    public static ConcurrentHashMap<Integer,Long> popQueueMap = new ConcurrentHashMap<>();
 
 
     /**
@@ -50,7 +55,7 @@ public class AGVFactory {
         CBridge location = CBridgeFactory.list.get(0);
 
         return new AGV(id,lightTravel,loadStroke,noLoadSpeed,loadSpeed,noLoadConsumptionSpeed,loadConsumptionSpeed,
-                chargingSpeed,workPower,disconnectPower,location);
+                chargingSpeed,workPower,disconnectPower,location,AGV.WORK);
     }
 
     public static List<AGV> agvList = new ArrayList<>();
@@ -71,4 +76,40 @@ public class AGVFactory {
         return agvList;
     }
 
+    /**
+     * @desc 充电等待队列
+     * @author maokeluo
+     * @methodName waitQueue
+     * @create 18-3-18
+     * @return java.util.List<org.xiaofan.zhou.vo.AGV>
+     */
+    public static List<AGV> waitQueue(){
+        return waitQueue;
+    }
+
+    /**
+     * @desc 入队
+     * @author maokeluo
+     * @methodName addWaitQueue
+     * @param  agv
+     * @create 18-3-18
+     * @return void
+     */
+    public static void addWaitQueue(AGV agv){
+        waitQueue.add(agv);
+        addQueueMap.put(agv.getId(),System.currentTimeMillis());
+    }
+
+    /**
+     * @desc 出队
+     * @author maokeluo
+     * @methodName popWaitQueue
+     * @param  agv
+     * @create 18-3-18
+     * @return void
+     */
+    public static void popWaitQueue(AGV agv){
+        waitQueue.remove(agv);
+        popQueueMap.put(agv.getId(),System.currentTimeMillis());
+    }
 }

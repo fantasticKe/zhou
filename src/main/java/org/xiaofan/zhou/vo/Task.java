@@ -23,7 +23,7 @@ public class Task {
     private int id;
 
     /** 完成时间 **/
-    private long completedTime;
+    private double completedTime;
 
     /** 紧急程度 **/
     private int degree;

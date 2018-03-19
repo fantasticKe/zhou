@@ -7,6 +7,7 @@ import org.xiaofan.zhou.vo.AShore;
 import org.xiaofan.zhou.vo.Task;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -55,24 +56,24 @@ public class AShoreFactory {
             //设置到充电站的距离
             shore.setDistanceOfStation(Integer.valueOf(distances2Station.get(i-1).toString()));
             Map<String,List<Task>> tasks = new HashMap<>();
-            //分配任务到各个岸桥
+            //给岸桥分配任务
             for (int j = 1; j < 7; j++) {
                 String key = i + String.valueOf(j);
                 Integer integer = Integer.valueOf(task.get(key).toString());
                 List<Task> taskList = new ArrayList<>();
                 //从总任务中分配
-                for (int k = startIndex; k < integer.intValue(); k++) {
+                for (int k = startIndex; k <= integer.intValue()+startIndex; k++) {
                     taskList.add(TaskFactory.tasks.get(k));
                 }
                 tasks.put(key, taskList);
-                startIndex = integer;
+                startIndex += integer;
             }
             shore.setTasks(tasks);
-            Map<String,Integer> distanceOfCBridge = new HashMap<>();
+            Map<String,Double> distanceOfCBridge = new HashMap<>();
             //设置到场桥的距离
             for (int j = 1; j < 7; j++) {
                 String key = i+String.valueOf(j);
-                distanceOfCBridge.put(key,Integer.valueOf(distance2CBridge.get(key).toString()));
+                distanceOfCBridge.put(key,Double.valueOf(distance2CBridge.get(key).toString()));
             }
             shore.setDistanceOfCBridge(distanceOfCBridge);
             shores.add(shore);
@@ -81,13 +82,19 @@ public class AShoreFactory {
     }
 
     /**
-     * @desc 为每个岸桥分配任务
+     * @desc 通过任务找到所属岸桥
      * @author maokeluo
-     * @methodName assignedTasks
-     * @create 18-3-15
-     * @return void
+     * @methodName getAShoreByTask
+     * @param  task
+     * @create 18-3-17
+     * @return org.xiaofan.zhou.vo.AShore
      */
-    public void assignedTasks(){
-        //TODO
+    public static AShore getAShoreByTask(Task task){
+        return shores.stream().filter(p -> {
+            long count = p.getTasks().entrySet().stream()
+                    .filter(q -> q.getValue().contains(task)).count();
+            return count > 0 ? true : false;
+        }).collect(Collectors.toList()).get(0);
     }
+
 }

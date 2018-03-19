@@ -49,10 +49,10 @@ public class AShoreFactory {
         //岸桥到场桥的任务
         JSONObject task = PropertyReaderUtil.readYml().getJSONObject("task");
 
+        int startIndex = 0;
         //按数量创建岸桥
         for (int i = 1; i < count + 1; i++) {
             AShore shore = createShore(i);
-            int startIndex = 0;
             //设置到充电站的距离
             shore.setDistanceOfStation(Integer.valueOf(distances2Station.get(i-1).toString()));
             Map<String,List<Task>> tasks = new HashMap<>();
@@ -62,11 +62,13 @@ public class AShoreFactory {
                 Integer integer = Integer.valueOf(task.get(key).toString());
                 List<Task> taskList = new ArrayList<>();
                 //从总任务中分配
-                for (int k = startIndex; k <= integer.intValue()+startIndex; k++) {
+                System.out.printf("分配 %d 个任务给 %s ",integer.intValue(),key);
+                for (int k = startIndex; k < integer.intValue()+startIndex; k++) {
                     taskList.add(TaskFactory.tasks.get(k));
                 }
                 tasks.put(key, taskList);
                 startIndex += integer;
+                System.out.println(startIndex);
             }
             shore.setTasks(tasks);
             Map<String,Double> distanceOfCBridge = new HashMap<>();
@@ -91,8 +93,7 @@ public class AShoreFactory {
      */
     public static AShore getAShoreByTask(Task task){
         return shores.stream().filter(p -> {
-            long count = p.getTasks().entrySet().stream()
-                    .filter(q -> q.getValue().contains(task)).count();
+            long count = p.getTasks().entrySet().stream().filter(q -> q.getValue().contains(task)).count();
             return count > 0 ? true : false;
         }).collect(Collectors.toList()).get(0);
     }

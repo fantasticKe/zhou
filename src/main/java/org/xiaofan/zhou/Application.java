@@ -20,7 +20,8 @@ public class Application {
 
         //利用工厂创建任务
         TaskFactory taskFactory = TaskFactory.getTaskFactory();
-        taskFactory.batchCreateTask(1000);
+        List<Task> tasks = taskFactory.batchCreateTask(1000);
+        tasks.forEach(System.out::println);
 
         //利用工厂创建场桥
         CBridgeFactory cBridgeFactory = CBridgeFactory.getCBridgeFactory();
@@ -39,7 +40,17 @@ public class Application {
         AGVFactory agvFactory = AGVFactory.getAgvFactory();
         List<AGV> agvs = agvFactory.batchCreateAGV(8);
         //agvs.forEach(System.out::println);
-        agvs.forEach(p->p.accessTask());
-        agvs.get(0).run();
+        while (TaskFactory.getNotCompleteTask().size() > 0){
+            agvs.forEach(p->{
+                p.accessTask();
+                p.run();
+            });
+        }
+        long time = 0;
+        for (Task task : TaskFactory.tasks) {
+            time += task.getCompletedTime();
+        }
+        System.out.println("完成任务总共花费时间(h):"+time);
+
     }
 }

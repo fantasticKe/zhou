@@ -119,24 +119,26 @@ public class AGV {
         JSONObject distanceOfBridge = PropertyReaderUtil.readYml().getJSONObject("distanceOfBridge");
         //以任务的id为key，加权值为value
         Map<Integer,Double> weightedMap = new HashMap<>();
-        shores.forEach(p->{
-            String distanceKey = p.getId()+String.valueOf(location.getId());
-            Double distance = Double.valueOf(distanceOfBridge.get(distanceKey).toString());
-            notCompleteTask.forEach(q->{
-                double weighted = 0.4 * distance + 0.6 * q.getDegree();
-                weightedMap.put(q.getId(),weighted);
+        Task task = null;
+        if (notCompleteTask.size() > 0){
+            shores.forEach(p->{
+                String distanceKey = p.getId()+String.valueOf(location.getId());
+                Double distance = Double.valueOf(distanceOfBridge.get(distanceKey).toString());
+                notCompleteTask.forEach(q->{
+                    double weighted = 0.4 * distance + 0.6 * q.getDegree();
+                    weightedMap.put(q.getId(),weighted);
+                });
             });
-        });
 
 
-        Map.Entry<Integer, Double> entry = weightedMap.entrySet().stream()
-                .min(Comparator.comparing(Map.Entry::getValue))
-                .get();
-
-        System.out.printf("%d号AGV接取到任务%d \n",id,entry.getKey());
-        Task task = TaskFactory.getTaskById(entry.getKey());
-        task.setState(Task.BE_ACCESS);
-        setCurrentTask(task);
+            Map.Entry<Integer, Double> entry = weightedMap.entrySet().stream()
+                    .min(Comparator.comparing(Map.Entry::getValue))
+                    .get();
+            System.out.printf("%d号AGV接取到任务%d \n",id,entry.getKey());
+            task = TaskFactory.getTaskById(entry.getKey());
+            task.setState(Task.BE_ACCESS);
+            setCurrentTask(task);
+        }
         return task;
     }
 
@@ -174,25 +176,28 @@ public class AGV {
         //任务完成
         Task task = TaskFactory.getTaskById(currentTask.getId());
         task.setState(Task.COMPLETED);
-        task.setCompletedTime(loadDistance/loadSpeed);
+        task.setCompletedTime(loadDistance / loadSpeed);
         completedTask++;
-        System.out.println("完成任务:"+currentTask.getId());
+        System.out.println("完成任务:"+currentTask.getId()+",消耗时间："+ (loadDistance / loadSpeed));
 
         if (currentPower < 10){
+            System.out.printf("%d AGV前往充电,当前电量: %f \n",id,currentPower);
             charge();
         }
         Task accessTask = accessTask();
-        //判断完成任务后小车剩余电量是否足够返回充电站充电
-        AShore aShore = AShoreFactory.getAShoreByTask(accessTask);
-        Map<String, Double> runTask = consumptionOfRunTask(aShore);
-        Double nextLoadPower = map.get("loadPower");
-        Double nextNoLoadPower = map.get("noLoadPower");
-        double soc = currentPower - nextLoadPower - nextNoLoadPower;
-        if (soc < 10){//若执行完下一个任务后电量小于10,则放弃任务,前往充电
-            accessTask.setState(Task.NOT_COMPLETE);
-            charge();
+        if (accessTask != null){
+            //判断完成任务后小车剩余电量是否足够返回充电站充电
+            AShore aShore = AShoreFactory.getAShoreByTask(accessTask);
+            Map<String, Double> runTask = consumptionOfRunTask(aShore);
+            Double nextLoadPower = runTask.get("loadPower");
+            Double nextNoLoadPower = runTask.get("noLoadPower");
+            double soc = currentPower - nextLoadPower - nextNoLoadPower;
+            if (soc < 10){//若执行完下一个任务后电量小于10,则放弃任务,前往充电
+                accessTask.setState(Task.NOT_COMPLETE);
+                charge();
+            }
+            System.out.printf("%d AGV 当前电量: %f \n",id,currentPower);
         }
-        System.out.printf("%d AGV 当前电量: %f \n",id,currentPower);
     }
 
     /**
@@ -208,8 +213,12 @@ public class AGV {
         //充电
         if (AGVFactory.waitQueue().size() == 0 ){//没有等待AGV
             state = CHARGE;
-            waitTime += (System.currentTimeMillis() - startTime) / (1000 * 60 * 60);
-            while (true){
+            //waitTime += (System.currentTimeMillis() - startTime) / (1000 * 60 * 60);
+            currentPower = 60;
+            chargeTime = (long) (chargeTime + (60 - currentPower) / chargingSpeed);
+            state = WORK;
+            ChargeStation.newInstance();
+            /*while (true){
                 //等待车辆的数量
                 int waitSize = AGVFactory.waitQueue().size();
                 System.out.printf("%d AGV当前电量: %f \n",id,currentPower);
@@ -217,15 +226,12 @@ public class AGV {
                     state = WORK;
                     ChargeStation.newInstance();
                     break;
-                }else if (TaskFactory.getNotCompleteTask().size() == 0){
-                    break;
                 }
-                //TODO 充电问题
                 long time = (System.currentTimeMillis() - startTime) / (1000 * 60 *60);
                 chargeTime += time;
                 currentPower = 1.5 * time;
-            }
-        }else if (AGVFactory.waitQueue().get(0) == this){//第一个等待AGV为当前AGV
+            }*/
+        }else if ((AGVFactory.waitQueue().size() > 0) && AGVFactory.waitQueue().get(0) == this){//第一个等待AGV为当前AGV
             state = CHARGE;
             waitTime += (System.currentTimeMillis() - startTime) / (1000 * 60 * 60);
             while (true){

@@ -8,7 +8,10 @@ import org.xiaofan.zhou.vo.Bridge;
 import org.xiaofan.zhou.vo.CBridge;
 
 import java.util.*;
+import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.IntStream;
 
 /**
@@ -27,7 +30,7 @@ public class AGVFactory {
         return agvFactory;
     }
 
-    private static List<AGV> waitQueue = new LinkedList<>();
+    private static volatile List<AGV> waitQueue = new LinkedList<>();
     //入队时间
     public static ConcurrentHashMap<Integer,Long> addQueueMap = new ConcurrentHashMap<>();
     //出队时间
@@ -95,7 +98,7 @@ public class AGVFactory {
      * @create 18-3-18
      * @return void
      */
-    public static void addWaitQueue(AGV agv){
+    public static synchronized void addWaitQueue(AGV agv){
         waitQueue.add(agv);
         addQueueMap.put(agv.getId(),System.currentTimeMillis());
     }
@@ -108,7 +111,7 @@ public class AGVFactory {
      * @create 18-3-18
      * @return void
      */
-    public static void popWaitQueue(AGV agv){
+    public static synchronized void popWaitQueue(AGV agv){
         waitQueue.remove(agv);
         popQueueMap.put(agv.getId(),System.currentTimeMillis());
     }

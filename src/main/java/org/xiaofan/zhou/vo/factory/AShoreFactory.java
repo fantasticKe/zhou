@@ -62,13 +62,11 @@ public class AShoreFactory {
                 Integer integer = Integer.valueOf(task.get(key).toString());
                 List<Task> taskList = new ArrayList<>();
                 //从总任务中分配
-                System.out.printf("分配 %d 个任务给 %s ",integer.intValue(),key);
                 for (int k = startIndex; k < integer.intValue()+startIndex; k++) {
                     taskList.add(TaskFactory.tasks.get(k));
                 }
                 tasks.put(key, taskList);
                 startIndex += integer;
-                System.out.println(startIndex);
             }
             shore.setTasks(tasks);
             Map<String,Double> distanceOfCBridge = new HashMap<>();

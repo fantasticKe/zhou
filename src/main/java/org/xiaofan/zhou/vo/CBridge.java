@@ -1,6 +1,9 @@
 package org.xiaofan.zhou.vo;
 
 import lombok.Data;
+import sun.font.StrikeCache;
+
+import java.io.UnsupportedEncodingException;
 
 /**
  * @author maokeluo
@@ -14,7 +17,7 @@ public class CBridge extends Bridge{
     private int id;
 
     /**到充电站的距离**/
-    private int distanceOfStation;
+    private double distanceOfStation;
 
     private CBridge(){}
 

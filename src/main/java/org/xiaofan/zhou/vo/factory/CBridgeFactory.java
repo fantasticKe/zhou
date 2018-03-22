@@ -36,7 +36,7 @@ public class CBridgeFactory {
         JSONArray jsonArray = PropertyReaderUtil.readYml().getJSONArray("distanceOfCBridge2Station");
         IntStream.range(1,count+1).forEach(p->{
             CBridge bridge = createBridge(p);
-            bridge.setDistanceOfStation(Integer.valueOf(jsonArray.get(p-1).toString()));
+            bridge.setDistanceOfStation(Double.valueOf(jsonArray.get(p-1).toString()));
             list.add(bridge);
         });
         return list;

@@ -12,6 +12,7 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
 /**
@@ -91,6 +92,16 @@ public class AGVFactory {
     }
 
     /**
+     * 同步的去获取当前等待的AGV数量
+     * @return
+     */
+    public static int waitQueueSize(){
+        synchronized (AGVFactory.class){
+            return waitQueue.size();
+        }
+    }
+
+    /**
      * @desc 入队
      * @author maokeluo
      * @methodName addWaitQueue
@@ -98,7 +109,7 @@ public class AGVFactory {
      * @create 18-3-18
      * @return void
      */
-    public static synchronized void addWaitQueue(AGV agv){
+    public static void addWaitQueue(AGV agv){
         waitQueue.add(agv);
         addQueueMap.put(agv.getId(),System.currentTimeMillis());
     }
@@ -111,7 +122,7 @@ public class AGVFactory {
      * @create 18-3-18
      * @return void
      */
-    public static synchronized void popWaitQueue(AGV agv){
+    public static void popWaitQueue(AGV agv){
         waitQueue.remove(agv);
         popQueueMap.put(agv.getId(),System.currentTimeMillis());
     }

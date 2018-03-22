@@ -23,7 +23,7 @@ public class AShore extends Bridge{
     private Map<String, List<Task>> tasks;
 
     /**到充电站的距离**/
-    private int distanceOfStation;
+    private double distanceOfStation;
 
     private AShore(){}
 

@@ -54,7 +54,7 @@ public class AShoreFactory {
         for (int i = 1; i < count + 1; i++) {
             AShore shore = createShore(i);
             //设置到充电站的距离
-            shore.setDistanceOfStation(Integer.valueOf(distances2Station.get(i-1).toString()));
+            shore.setDistanceOfStation(Double.valueOf(distances2Station.get(i-1).toString()));
             Map<String,List<Task>> tasks = new HashMap<>();
             //给岸桥分配任务
             for (int j = 1; j < 7; j++) {

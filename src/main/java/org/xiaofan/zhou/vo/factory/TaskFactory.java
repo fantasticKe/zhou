@@ -1,5 +1,6 @@
 package org.xiaofan.zhou.vo.factory;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.xiaofan.zhou.util.PropertyReaderUtil;
 import org.xiaofan.zhou.util.RandomUtil;
@@ -43,17 +44,26 @@ public class TaskFactory {
         return randoms;
     }
 
+    public static void main(String[] args) {
+        List<Integer> random = getRandom(1000);
+        for (int i = 0; i < random.size(); i++) {
+            System.out.println(random.get(i));
+        }
+    }
+
     /**
      * 批量创建任务
      * @param count
      * @return
      */
     public List<Task> batchCreateTask(int count){
-        getRandom(count);
+        //getRandom(count);
+        List<Object> random = PropertyReaderUtil.readYml().getJSONArray("randoms").subList(0, 1000);
+        random.forEach(p-> randoms.add(Integer.valueOf(p.toString())));
         IntStream.range(1,count+1).forEach(p->{
             Task task = createTask(p);
             task.setState(Task.NOT_COMPLETE);
-            task.setDegree(randoms.get(p-1));
+            task.setDegree(TaskFactory.randoms.get(p-1));
             tasks.add(task);
         });
         return tasks;
@@ -69,11 +79,19 @@ public class TaskFactory {
     public Task accessTask(AGV agv){
         List<Task> collect = new ArrayList<>();
         synchronized (TaskFactory.class) {
-            System.out.println(Thread.currentThread().getName() + "拿到资源");
+            //System.out.println(Thread.currentThread().getName() + "拿到资源");
             collect = tasks.stream()
                     .filter(p -> Task.NOT_COMPLETE == p.getState())
                     .collect(Collectors.toList());
-
+            /*System.out.println("未完成任务数："+collect.size());
+            long count = tasks.stream()
+                    .filter(p -> Task.COMPLETED == p.getState())
+                    .count();
+            System.out.println("完成任务数："+count);
+            long count1 = tasks.stream()
+                    .filter(p -> Task.BE_ACCESS == p.getState())
+                    .count();
+            System.out.println("被接取任务数："+count1);*/
             List<AShore> shores = AShoreFactory.shores;
             JSONObject distanceOfBridge = PropertyReaderUtil.readYml().getJSONObject("distanceOfBridge");
             //以任务的id为key，加权值为value
@@ -91,10 +109,23 @@ public class TaskFactory {
                 Map.Entry<Integer, Double> entry = weightedMap.entrySet().stream()
                         .min(Comparator.comparing(Map.Entry::getValue))
                         .get();
+
+
                 System.out.printf("%d号AGV接取到任务%d \n", agv.getId(), entry.getKey());
                 task = getTaskById(entry.getKey());
-                task.setState(Task.BE_ACCESS);
-                agv.setCurrentTask(task);
+                AShore aShoreByTask = AShoreFactory.getAShoreByTask(task);
+                Map<String, Double> map = AGV.consumptionOfRunTask(agv,aShoreByTask);
+                Double noLoadPower = map.get("noLoadPower");
+                Double loadPower = map.get("loadPower");
+                double soc = agv.getCurrentPower() - noLoadPower - loadPower;
+                if (soc >= 10){
+                    task.setState(Task.BE_ACCESS);
+                    agv.setCurrentTask(task);
+                    agv.run();
+                }else {
+                    task.setState(Task.NOT_COMPLETE);
+                    agv.charge();
+                }
             }
             return task;
         }

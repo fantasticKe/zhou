@@ -6,7 +6,12 @@ import org.xiaofan.zhou.vo.factory.AShoreFactory;
 import org.xiaofan.zhou.vo.factory.CBridgeFactory;
 import org.xiaofan.zhou.vo.factory.TaskFactory;
 
+import javax.xml.crypto.Data;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.OptionalDouble;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -46,86 +51,78 @@ public class Application {
         List<AGV> agvs = agvFactory.batchCreateAGV(8);
         //agvs.forEach(System.out::println);
 
-        AtomicBoolean stop = new AtomicBoolean(true);
+        AtomicBoolean run = new AtomicBoolean(true);
         //每个AGV开启一个线程去执行任务
         ExecutorService executorService1 = Executors.newSingleThreadExecutor();
         Runnable task1 = ()-> {
-            while (stop.get()){
+            while (run.get()){
                 taskFactory.accessTask(agvs.get(0));
-                agvs.get(0).run();
             }
         };
         executorService1.submit(task1);
 
         ExecutorService executorService2 = Executors.newSingleThreadExecutor();
         Runnable task2 = ()->{
-            while (stop.get()){
+            while (run.get()){
                 taskFactory.accessTask(agvs.get(1));
-                agvs.get(1).run();
             }
         };
         executorService2.submit(task2);
 
         ExecutorService executorService3 = Executors.newSingleThreadExecutor();
         Runnable task3 = ()->{
-            while (stop.get()){
+            while (run.get()){
                 taskFactory.accessTask(agvs.get(2));
-                agvs.get(2).run();
             }
         };
         executorService3.submit(task3);
 
         ExecutorService executorService4 = Executors.newSingleThreadExecutor();
         Runnable task4 = ()->{
-            while (stop.get()){
+            while (run.get()){
                 taskFactory.accessTask(agvs.get(3));
-                agvs.get(3).run();
+
             }
         };
         executorService4.submit(task4);
 
         ExecutorService executorService5 = Executors.newSingleThreadExecutor();
         Runnable task5 = ()->{
-            while (stop.get()){
+            while (run.get()){
                 taskFactory.accessTask(agvs.get(4));
-                agvs.get(4).run();
             }
         };
         executorService5.submit(task5);
 
         ExecutorService executorService6 = Executors.newSingleThreadExecutor();
         Runnable task6 = ()->{
-            while (stop.get()){
+            while (run.get()){
                 taskFactory.accessTask(agvs.get(5));
-                agvs.get(5).run();
             }
         };
         executorService6.submit(task6);
 
         ExecutorService executorService7 = Executors.newSingleThreadExecutor();
         Runnable task7 = ()->{
-            while (stop.get()){
+            while (run.get()){
                 taskFactory.accessTask(agvs.get(6));
-                agvs.get(6).run();
             }
         };
         executorService7.submit(task7);
 
         ExecutorService executorService8 = Executors.newSingleThreadExecutor();
         Runnable task8 = ()->{
-            while (stop.get()){
+            while (run.get()){
                 taskFactory.accessTask(agvs.get(7));
-                agvs.get(7).run();
             }
         };
         executorService8.submit(task8);
 
         while (true){
             long count = tasks.stream().filter(p -> p.getState() == Task.COMPLETED).count();
-            System.out.println("当前完成任务数："+count);
-            if (count >= 500){
-                stop.compareAndSet(true,false);
-                System.out.println("stop:"+stop.get());
+            if (count == 1000){
+                run.compareAndSet(true,false);
+                System.out.println("stop:"+run.get());
                 closeThread(executorService1);
                 closeThread(executorService2);
                 closeThread(executorService3);
@@ -137,15 +134,28 @@ public class Application {
                 break;
             }
         }
-        double time = 0;
+        /*double time = 0;
         for (Task task : TaskFactory.tasks) {
             time = time + task.getCompletedTime();
         }
         System.out.println("完成任务总共花费时间(h):"+time);
+        Double times = time * 60 * 60 * 1000 + System.currentTimeMillis();
+        Date date = new Date(times.longValue());
+        SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日 hh:mm:ss");
+        System.out.printf("所有任务在 %s 完成\n",format.format(date));*/
+        List<Double> times = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
+            double time = agvs.get(i).getChargeTime() + agvs.get(i).getWaitTime() + agvs.get(i).getWorkTime();
+            times.add(time);
             System.out.printf("%d号AGV完成任务数：%d\n",agvs.get(i).getId(),agvs.get(i).getCompletedTask());
             System.out.printf("%d号AGV行走距离(km)：%f\n",agvs.get(i).getId(),agvs.get(i).getDistance());
+            System.out.printf("%d号AGV等待时间(h)：%f\n",agvs.get(i).getId(),agvs.get(i).getWaitTime());
+            System.out.printf("%d号AGV充电时间(h)：%f\n",agvs.get(i).getId(),agvs.get(i).getChargeTime());
+            System.out.printf("%d号AGV从开始任务到最后一个任务的时间(h)：%f\n",agvs.get(i).getId(), time);
+            System.out.printf("%d号小车当前电量%f\n",agvs.get(i).getId(),agvs.get(i).getCurrentPower());
         }
+        OptionalDouble max = times.stream().mapToDouble(p -> p.doubleValue()).max();
+        System.out.println("AGV完成所有任务用时(h)："+ max.getAsDouble());
     }
 
     /**
@@ -154,7 +164,7 @@ public class Application {
      */
     public static void closeThread(ExecutorService executorService){
         try {
-            System.out.println("尝试关闭ExecutorService");
+            //System.out.println("尝试关闭ExecutorService");
             executorService.shutdown();
             //指定一段时间温和关闭
             executorService.awaitTermination(5, TimeUnit.SECONDS);
@@ -167,7 +177,7 @@ public class Application {
                 System.out.println("结束未完成的任务...");
             }
             executorService.shutdownNow();
-            System.out.println("ExecutorService被停止...");
+            //System.out.println("ExecutorService被停止...");
         }
     }
 }

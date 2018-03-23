@@ -31,6 +31,9 @@ public class AGVFactory {
         return agvFactory;
     }
 
+    //AGV数量
+    public static final int NUM = 8;
+    //等待队列
     private static volatile List<AGV> waitQueue = new LinkedList<>();
     //入队时间
     public static ConcurrentHashMap<Integer,Long> addQueueMap = new ConcurrentHashMap<>();

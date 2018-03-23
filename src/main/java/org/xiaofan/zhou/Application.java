@@ -52,85 +52,23 @@ public class Application {
         //agvs.forEach(System.out::println);
 
         AtomicBoolean run = new AtomicBoolean(true);
-        //每个AGV开启一个线程去执行任务
-        ExecutorService executorService1 = Executors.newSingleThreadExecutor();
-        Runnable task1 = ()-> {
+
+        //AGV开始执行任务
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Runnable task = ()->{
             while (run.get()){
-                taskFactory.accessTask(agvs.get(0));
+                for (int i = 0; i < AGVFactory.NUM; i++) {
+                    taskFactory.accessTask(agvs.get(i));
+                }
             }
         };
-        executorService1.submit(task1);
-
-        ExecutorService executorService2 = Executors.newSingleThreadExecutor();
-        Runnable task2 = ()->{
-            while (run.get()){
-                taskFactory.accessTask(agvs.get(1));
-            }
-        };
-        executorService2.submit(task2);
-
-        ExecutorService executorService3 = Executors.newSingleThreadExecutor();
-        Runnable task3 = ()->{
-            while (run.get()){
-                taskFactory.accessTask(agvs.get(2));
-            }
-        };
-        executorService3.submit(task3);
-
-        ExecutorService executorService4 = Executors.newSingleThreadExecutor();
-        Runnable task4 = ()->{
-            while (run.get()){
-                taskFactory.accessTask(agvs.get(3));
-
-            }
-        };
-        executorService4.submit(task4);
-
-        ExecutorService executorService5 = Executors.newSingleThreadExecutor();
-        Runnable task5 = ()->{
-            while (run.get()){
-                taskFactory.accessTask(agvs.get(4));
-            }
-        };
-        executorService5.submit(task5);
-
-        ExecutorService executorService6 = Executors.newSingleThreadExecutor();
-        Runnable task6 = ()->{
-            while (run.get()){
-                taskFactory.accessTask(agvs.get(5));
-            }
-        };
-        executorService6.submit(task6);
-
-        ExecutorService executorService7 = Executors.newSingleThreadExecutor();
-        Runnable task7 = ()->{
-            while (run.get()){
-                taskFactory.accessTask(agvs.get(6));
-            }
-        };
-        executorService7.submit(task7);
-
-        ExecutorService executorService8 = Executors.newSingleThreadExecutor();
-        Runnable task8 = ()->{
-            while (run.get()){
-                taskFactory.accessTask(agvs.get(7));
-            }
-        };
-        executorService8.submit(task8);
-
+        executorService.submit(task);
         while (true){
             long count = tasks.stream().filter(p -> p.getState() == Task.COMPLETED).count();
             if (count == 1000){
                 run.compareAndSet(true,false);
                 System.out.println("stop:"+run.get());
-                closeThread(executorService1);
-                closeThread(executorService2);
-                closeThread(executorService3);
-                closeThread(executorService4);
-                closeThread(executorService5);
-                closeThread(executorService6);
-                closeThread(executorService7);
-                closeThread(executorService8);
+                closeThread(executorService);
                 break;
             }
         }
@@ -144,7 +82,7 @@ public class Application {
         SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日 hh:mm:ss");
         System.out.printf("所有任务在 %s 完成\n",format.format(date));*/
         List<Double> times = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < AGVFactory.NUM; i++) {
             double time = agvs.get(i).getChargeTime() + agvs.get(i).getWaitTime() + agvs.get(i).getWorkTime();
             times.add(time);
             System.out.printf("%d号AGV完成任务数：%d\n",agvs.get(i).getId(),agvs.get(i).getCompletedTask());

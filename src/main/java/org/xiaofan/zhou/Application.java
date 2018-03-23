@@ -12,10 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.OptionalDouble;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -58,11 +55,14 @@ public class Application {
         Runnable task = ()->{
             while (run.get()){
                 for (int i = 0; i < AGVFactory.NUM; i++) {
-                    taskFactory.accessTask(agvs.get(i));
+                    if (agvs.get(i).getState() == AGV.WORK){
+                        taskFactory.accessTask(agvs.get(i));
+                    }
                 }
             }
         };
         executorService.submit(task);
+
         while (true){
             long count = tasks.stream().filter(p -> p.getState() == Task.COMPLETED).count();
             if (count == 1000){

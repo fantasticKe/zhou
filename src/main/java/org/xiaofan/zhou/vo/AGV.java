@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 import org.xiaofan.zhou.util.PropertyReaderUtil;
+import org.xiaofan.zhou.util.RandomUtil;
 import org.xiaofan.zhou.vo.factory.AGVFactory;
 import org.xiaofan.zhou.vo.factory.AShoreFactory;
 import org.xiaofan.zhou.vo.factory.TaskFactory;
@@ -140,6 +141,8 @@ public class AGV {
             completedTask++;
             System.out.println("完成任务:"+currentTask.getId()+",消耗时间："+ (loadDistance / loadSpeed) + "当前电量："+currentPower);
         }
+        //int i = RandomUtil.randomNumber(0, AGVFactory.NUM);
+        //TaskFactory.getTaskFactory().accessTask(this);
     }
 
     /**
@@ -161,20 +164,22 @@ public class AGV {
         AGVFactory.addWaitQueue(this);
         while (true){
             //等待
-            int waitIndex = AGVFactory.waitQueueSize();
+            int waitIndex = AGVFactory.waitQueueSize() -1;
             System.out.println("当前等待车辆数："+waitIndex);
-            if (waitIndex > 1){
+            if (waitIndex > 0){
                 System.out.println(id+"号AGV，等待。。。。");
-                AGV preAgv = AGVFactory.waitQueue().get(waitIndex-1);
+                AGV preAgv = AGVFactory.waitQueue().get(waitIndex);
                 currentWaitTime = (long) (preAgv.currentWaitTime + (100 - preAgv.currentPower) / chargingSpeed);
+                state = WAIT;
             }else {
                 //充电
                 System.out.println(id+"号AGV，充电。。。");
                 chargeTime = (chargeTime + (100 - currentPower) / chargingSpeed);
                 currentPower = 100;
+                state = WORK;
                 AGVFactory.popWaitQueue(this);
                 System.out.println(id+"号小车充完电，等待车辆数："+AGVFactory.waitQueue().size());
-                TaskFactory.getTaskFactory().accessTask(this);
+                //TaskFactory.getTaskFactory().accessTask(this);
                 break;
             }
             waitTime += currentWaitTime;

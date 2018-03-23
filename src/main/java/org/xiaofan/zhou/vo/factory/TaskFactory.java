@@ -121,9 +121,11 @@ public class TaskFactory {
                 if (soc >= 10){
                     task.setState(Task.BE_ACCESS);
                     agv.setCurrentTask(task);
+                    agv.setState(AGV.WORK);
                     agv.run();
                 }else {
                     task.setState(Task.NOT_COMPLETE);
+                    agv.setState(AGV.CHARGE);
                     agv.charge();
                 }
             }

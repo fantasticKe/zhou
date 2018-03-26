@@ -7,6 +7,7 @@ import org.xiaofan.zhou.util.PropertyReaderUtil;
 import org.xiaofan.zhou.util.RandomUtil;
 import org.xiaofan.zhou.vo.factory.AGVFactory;
 import org.xiaofan.zhou.vo.factory.AShoreFactory;
+import org.xiaofan.zhou.vo.factory.CBridgeFactory;
 import org.xiaofan.zhou.vo.factory.TaskFactory;
 
 import java.util.Comparator;
@@ -136,6 +137,10 @@ public class AGV {
             Task task = TaskFactory.getTaskById(currentTask.getId());
             task.setState(Task.COMPLETED);
             currentTask.setState(Task.COMPLETED);
+            int key = Integer.parseInt(aShoreByTask.keySet().toArray()[0].toString());
+            int cbridgeId = key % 10;
+            CBridge cBridge = CBridgeFactory.getById(cbridgeId);
+            this.setLocation(cBridge);
 
             task.setCompletedTime(loadDistance / loadSpeed);
             completedTask++;

@@ -26,7 +26,7 @@ public class Task {
     private double completedTime;
 
     /** 紧急程度 **/
-    private int degree;
+    private double degree;
 
     /**任务状态 **/
     private AtomicInteger state;

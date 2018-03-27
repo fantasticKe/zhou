@@ -7,6 +7,7 @@ import org.xiaofan.zhou.util.PropertyReaderUtil;
 import org.xiaofan.zhou.util.RandomUtil;
 import org.xiaofan.zhou.vo.factory.AGVFactory;
 import org.xiaofan.zhou.vo.factory.AShoreFactory;
+import org.xiaofan.zhou.vo.factory.CBridgeFactory;
 import org.xiaofan.zhou.vo.factory.TaskFactory;
 
 import java.util.Comparator;
@@ -120,8 +121,8 @@ public class AGV {
     public void run(){
         if (currentTask.getState() == Task.BE_ACCESS){
             System.out.printf("%d号AGV开始执行任务：%d \n",id,currentTask.getId());
-            AShore aShoreByTask = AShoreFactory.getAShoreByTask(currentTask);
-            Map<String, Double> map = consumptionOfRunTask(this,aShoreByTask);
+            Map<String, AShore> aShoreByTask = AShoreFactory.getAShoreByTask(currentTask);
+            Map<String, Double> map = TaskFactory.consumptionOfRunTask(this,aShoreByTask);
             Double noLoadPower = map.get("noLoadPower");
             Double loadPower = map.get("loadPower");
             Double loadDistance = map.get("loadDistance");
@@ -136,13 +137,17 @@ public class AGV {
             Task task = TaskFactory.getTaskById(currentTask.getId());
             task.setState(Task.COMPLETED);
             currentTask.setState(Task.COMPLETED);
-
+            int key = Integer.parseInt(aShoreByTask.keySet().toArray()[0].toString());
+            int cbridgeId = key % 10;
+            CBridge cBridge = CBridgeFactory.getById(cbridgeId);
+            this.setLocation(cBridge);
+            System.out.println(this.getId()+"号AGV当前所在位置："+this.getLocation());
             task.setCompletedTime(loadDistance / loadSpeed);
             completedTask++;
-            System.out.println("完成任务:"+currentTask.getId()+",消耗时间："+ (loadDistance / loadSpeed) + "当前电量："+currentPower);
+            double time = (loadDistance / loadSpeed ) + (noLoadDistance / noLoadSpeed);
+            System.out.println("完成任务:"+currentTask.getId()+",消耗时间："+ time + ",当前电量："+currentPower);
         }
-        //int i = RandomUtil.randomNumber(0, AGVFactory.NUM);
-        //TaskFactory.getTaskFactory().accessTask(this);
+
     }
 
     /**
@@ -179,42 +184,10 @@ public class AGV {
                 state = WORK;
                 AGVFactory.popWaitQueue(this);
                 System.out.println(id+"号小车充完电，等待车辆数："+AGVFactory.waitQueue().size());
-                //TaskFactory.getTaskFactory().accessTask(this);
                 break;
             }
             waitTime += currentWaitTime;
         }
     }
 
-    /**
-     * @desc 执行任务AGV改变量
-     * @author maokeluo
-     * @methodName consumptionOfRunTask
-     * @param  aShore
-     * @create 18-3-19
-     * @return java.util.Map<java.lang.String,java.lang.Double>
-     */
-    public static Map<String,Double> consumptionOfRunTask(AGV agv, AShore aShore){
-        Map<String,Double> map = new HashMap<>();
-        //空载行程
-        JSONObject distanceOfBridge = PropertyReaderUtil.readYml().getJSONObject("distanceOfBridge");
-        String noLoaddistanceKey = agv.location.getId() + String.valueOf(aShore.getId());
-        double noLoadDistance = Double.valueOf(distanceOfBridge.get(noLoaddistanceKey).toString());
-        //空载电量消耗
-        double noLoadPower = noLoadDistance / agv.noLoadSpeed * agv.noLoadConsumptionSpeed;
-
-        //负载行程
-        String loaddistanceKey = aShore.getId() + String.valueOf(agv.location.getId());
-        double loadDistance = Double.valueOf(distanceOfBridge.get(loaddistanceKey).toString());
-        //负载电量消耗
-        double loadPower = loadDistance / agv.loadSpeed * agv.loadConsumptionSpeed;
-        //System.out.println("执行任务"+currentTask.getId()+"需,空载距离:"+noLoadDistance+",负载距离:"
-        //        +loadDistance + ",空载耗电:"+noLoadPower+",负载耗电:"+loadPower);
-
-        map.put("noLoadDistance",noLoadDistance);
-        map.put("noLoadPower",noLoadPower);
-        map.put("loadDistance",loadDistance);
-        map.put("loadPower",loadPower);
-        return map;
-    }
 }

@@ -6,6 +6,7 @@ import org.xiaofan.zhou.vo.CBridge;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -40,5 +41,20 @@ public class CBridgeFactory {
             list.add(bridge);
         });
         return list;
+    }
+
+    /**
+     * @desc 通过id获取厂桥
+     * @author maokeluo
+     * @methodName getById
+     * @param  id 厂桥id
+     * @create 18-3-26
+     * @return org.xiaofan.zhou.vo.CBridge
+     */
+    public synchronized static CBridge getById(int id){
+        return list.stream()
+                .filter(p->p.getId() == id)
+                .collect(Collectors.toList())
+                .get(0);
     }
 }

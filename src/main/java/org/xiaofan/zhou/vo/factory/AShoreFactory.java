@@ -78,22 +78,28 @@ public class AShoreFactory {
             shore.setDistanceOfCBridge(distanceOfCBridge);
             shores.add(shore);
         }
+        System.out.println(shores);
         return shores;
     }
 
     /**
-     * @desc 通过任务找到所属岸桥
+     * @desc 通过任务找到所属岸桥和厂桥
      * @author maokeluo
      * @methodName getAShoreByTask
      * @param  task
-     * @create 18-3-17
-     * @return org.xiaofan.zhou.vo.AShore
+     * @create 18-3-23
+     * @return java.util.Map<java.lang.String,org.xiaofan.zhou.vo.AShore>
      */
-    public static AShore getAShoreByTask(Task task){
-        return shores.stream().filter(p -> {
-            long count = p.getTasks().entrySet().stream().filter(q -> q.getValue().contains(task)).count();
-            return count > 0 ? true : false;
-        }).collect(Collectors.toList()).get(0);
+    public static Map<String,AShore> getAShoreByTask(Task task){
+        Map<String,AShore> map = new HashMap<>();
+        for (AShore aShore : shores) {
+            for (Map.Entry<String,List<Task>> tasks : aShore.getTasks().entrySet()){
+                if (tasks.getValue().contains(task)){
+                    map.put(tasks.getKey(),aShore);
+                }
+            }
+        }
+        return map;
     }
 
 }

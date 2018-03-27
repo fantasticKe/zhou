@@ -32,13 +32,11 @@ public class Application {
 
         //利用工厂创建场桥
         CBridgeFactory cBridgeFactory = CBridgeFactory.getCBridgeFactory();
-        List<CBridge> cBridges = cBridgeFactory.batchCreateBridge(6);
-        //cBridges.forEach(System.out::println);
+        cBridgeFactory.batchCreateBridge(6);
 
         //利用工厂创建岸桥
         AShoreFactory aShoreFactory = AShoreFactory.getShoreFactory();
-        List<AShore> aShores = aShoreFactory.batchCreateShore(2);
-        //aShores.forEach(System.out::println);
+        aShoreFactory.batchCreateShore(2);
 
         //初始化充电站
         ChargeStation.newInstance();
@@ -62,7 +60,71 @@ public class Application {
             }
         };
         executorService.submit(task);
-
+        /*ExecutorService executorService = Executors.newFixedThreadPool(10);
+        Runnable task1 = ()->{
+            while (run.get()){
+                if (agvs.get(0).getState() == AGV.WORK){
+                    taskFactory.accessTask(agvs.get(0));
+                }
+            }
+        };
+        Runnable task2 = ()->{
+            while (run.get()){
+                if (agvs.get(1).getState() == AGV.WORK){
+                    taskFactory.accessTask(agvs.get(1));
+                }
+            }
+        };
+        Runnable task3 = ()->{
+            while (run.get()){
+                if (agvs.get(2).getState() == AGV.WORK){
+                    taskFactory.accessTask(agvs.get(2));
+                }
+            }
+        };
+        Runnable task4 = ()->{
+            while (run.get()){
+                if (agvs.get(3).getState() == AGV.WORK){
+                    taskFactory.accessTask(agvs.get(3));
+                }
+            }
+        };
+        Runnable task5 = ()->{
+            while (run.get()){
+                if (agvs.get(4).getState() == AGV.WORK){
+                    taskFactory.accessTask(agvs.get(4));
+                }
+            }
+        };
+        Runnable task6 = ()->{
+            while (run.get()){
+                if (agvs.get(5).getState() == AGV.WORK){
+                    taskFactory.accessTask(agvs.get(5));
+                }
+            }
+        };
+        Runnable task7 = ()->{
+            while (run.get()){
+                if (agvs.get(6).getState() == AGV.WORK){
+                    taskFactory.accessTask(agvs.get(6));
+                }
+            }
+        };
+        Runnable task8 = ()->{
+            while (run.get()){
+                if (agvs.get(7).getState() == AGV.WORK){
+                    taskFactory.accessTask(agvs.get(7));
+                }
+            }
+        };
+        executorService.submit(task1);
+        executorService.submit(task2);
+        executorService.submit(task3);
+        executorService.submit(task4);
+        executorService.submit(task5);
+        executorService.submit(task6);
+        executorService.submit(task7);
+        executorService.submit(task8);*/
         while (true){
             long count = tasks.stream().filter(p -> p.getState() == Task.COMPLETED).count();
             if (count == 1000){
@@ -72,15 +134,6 @@ public class Application {
                 break;
             }
         }
-        /*double time = 0;
-        for (Task task : TaskFactory.tasks) {
-            time = time + task.getCompletedTime();
-        }
-        System.out.println("完成任务总共花费时间(h):"+time);
-        Double times = time * 60 * 60 * 1000 + System.currentTimeMillis();
-        Date date = new Date(times.longValue());
-        SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日 hh:mm:ss");
-        System.out.printf("所有任务在 %s 完成\n",format.format(date));*/
         List<Double> times = new ArrayList<>();
         for (int i = 0; i < AGVFactory.NUM; i++) {
             double time = agvs.get(i).getChargeTime() + agvs.get(i).getWaitTime() + agvs.get(i).getWorkTime();

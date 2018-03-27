@@ -77,57 +77,48 @@ public class TaskFactory {
      * @return java.util.List<org.xiaofan.zhou.vo.Task>
      */
     public Task accessTask(AGV agv){
-        List<Task> collect = new ArrayList<>();
         synchronized (TaskFactory.class) {
-            //System.out.println(Thread.currentThread().getName() + "拿到资源");
-            collect = tasks.stream()
-                    .filter(p -> Task.NOT_COMPLETE == p.getState())
-                    .collect(Collectors.toList());
-            /*System.out.println("未完成任务数："+collect.size());
-            long count = tasks.stream()
-                    .filter(p -> Task.COMPLETED == p.getState())
-                    .count();
-            System.out.println("完成任务数："+count);
-            long count1 = tasks.stream()
-                    .filter(p -> Task.BE_ACCESS == p.getState())
-                    .count();
-            System.out.println("被接取任务数："+count1);*/
             List<AShore> shores = AShoreFactory.shores;
             JSONObject distanceOfBridge = PropertyReaderUtil.readYml().getJSONObject("distanceOfBridge");
             //以任务的id为key，加权值为value
-            Map<Integer, Double> weightedMap = new HashMap<>();
-            Task task = null;
-            if (collect.size() > 0) {
-                for (AShore ashore : shores) {
-                    String distanceKey = ashore.getId() + String.valueOf(agv.getLocation().getId());
-                    Double distance = Double.valueOf(distanceOfBridge.get(distanceKey).toString());
-                    for (Task task1 : collect) {
-                        double weighted = 0.2 * distance + 0.8 * task1.getDegree();
-                        weightedMap.put(task1.getId(), weighted);
-                    }
+            Map<String, Double> weightedMap = new HashMap<>();
+            for (AShore ashore : shores) {
+                String distanceKey = ashore.getId() + String.valueOf(agv.getLocation().getId());
+                Double distance = Double.valueOf(distanceOfBridge.get(distanceKey).toString());
+                List<Task> taskList = new ArrayList<>();
+                ashore.getTasks().entrySet()
+                        .forEach(p->taskList.addAll(p.getValue().stream()
+                                .filter(q->q.getState() == Task.NOT_COMPLETE)
+                                .collect(Collectors.toList())));
+                for (Task task1 : taskList) {
+                    double weighted = 1.3 * distance + 0.7 * task1.getDegree();
+                    weightedMap.put(String.valueOf(ashore.getId())+":"+task1.getId(), weighted);
+                    //System.out.printf("%d 号AGV执行任务 %d 的权重为:%f  ",agv.getId(),task1.getId(),weighted);
                 }
-                Map.Entry<Integer, Double> entry = weightedMap.entrySet().stream()
-                        .min(Comparator.comparing(Map.Entry::getValue))
-                        .get();
 
+            }
+            Map.Entry<String, Double> entry = weightedMap.entrySet().stream()
+                    .min(Comparator.comparing(Map.Entry::getValue))
+                    .get();
+            System.out.printf("任务id:%s, 任务权重: %f \n",entry.getKey().split(":")[1],entry.getValue());
+            int taskId = Integer.parseInt(entry.getKey().split(":")[1]);
+            System.out.printf("%d号AGV接取到任务%d \n", agv.getId(), taskId);
+            Task task = getTaskById(taskId);
+            Map<String, AShore> aShoreByTask = AShoreFactory.getAShoreByTask(task);
+            Map<String, Double> map = consumptionOfRunTask(agv,aShoreByTask);
 
-                System.out.printf("%d号AGV接取到任务%d \n", agv.getId(), entry.getKey());
-                task = getTaskById(entry.getKey());
-                AShore aShoreByTask = AShoreFactory.getAShoreByTask(task);
-                Map<String, Double> map = AGV.consumptionOfRunTask(agv,aShoreByTask);
-                Double noLoadPower = map.get("noLoadPower");
-                Double loadPower = map.get("loadPower");
-                double soc = agv.getCurrentPower() - noLoadPower - loadPower;
-                if (soc >= 10){
-                    task.setState(Task.BE_ACCESS);
-                    agv.setCurrentTask(task);
-                    agv.setState(AGV.WORK);
-                    agv.run();
-                }else {
-                    task.setState(Task.NOT_COMPLETE);
-                    agv.setState(AGV.CHARGE);
-                    agv.charge();
-                }
+            Double noLoadPower = map.get("noLoadPower");
+            Double loadPower = map.get("loadPower");
+            double soc = agv.getCurrentPower() - noLoadPower - loadPower;
+            if (soc >= 10){
+                task.setState(Task.BE_ACCESS);
+                agv.setCurrentTask(task);
+                agv.setState(AGV.WORK);
+                agv.run();
+            }else {
+                task.setState(Task.NOT_COMPLETE);
+                agv.setState(AGV.CHARGE);
+                agv.charge();
             }
             return task;
         }
@@ -140,5 +131,40 @@ public class TaskFactory {
      */
     public static Task getTaskById(int id){
         return tasks.get(id-1);
+    }
+
+    /**
+     * @desc 执行任务AGV改变量
+     * @author maokeluo
+     * @methodName consumptionOfRunTask
+     * @param  agv aShoreMap
+     * @create 18-3-19
+     * @return java.util.Map<java.lang.String,java.lang.Double>
+     */
+    public static Map<String,Double> consumptionOfRunTask(AGV agv, Map<String,AShore> aShoreMap){
+        JSONObject distanceOfBridge = PropertyReaderUtil.readYml().getJSONObject("distanceOfBridge");
+        Map<String,Double> map = new HashMap<>();
+        AShore aShore = null;
+        for (Map.Entry<String, AShore> aShoreEntry : aShoreMap.entrySet()){
+            aShore = aShoreEntry.getValue();
+        }
+
+        //空载行程
+        String noLoaddistanceKey = String.valueOf(aShore.getId()) + agv.getLocation().getId();
+        double noLoadDistance = Double.valueOf(distanceOfBridge.get(noLoaddistanceKey).toString());
+        //空载电量消耗
+        double noLoadPower = noLoadDistance / agv.getNoLoadSpeed() * agv.getNoLoadConsumptionSpeed();
+        //负载行程
+        String loaddistanceKey = aShoreMap.keySet().toArray()[0].toString();
+        double loadDistance = Double.valueOf(distanceOfBridge.get(loaddistanceKey).toString());
+        //负载电量消耗
+        double loadPower = loadDistance / agv.getLoadSpeed() * agv.getLoadConsumptionSpeed();
+
+        map.put("noLoadDistance",noLoadDistance);
+        map.put("noLoadPower",noLoadPower);
+        map.put("loadDistance",loadDistance);
+        map.put("loadPower",loadPower);
+
+        return map;
     }
 }
